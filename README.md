@@ -141,7 +141,7 @@ python SelectFromModel_SDG.py \
    -t 'path to reference taxonomy. QIIME2 ARTIFACTS ONLY (.qza files)' 
 ```
 
-Compare method accuracy by running Evaluate_method_accuracy.py
+Compare method accuracy by running Evaluate_method_accuracy.py. This script will not run except more than one feature selection scripts have been run (it says compare!)
 
 NOTE: Evaluate_method_accuracy.ipynb is the notebook version of Evaluate_method_accuracy.py, showing all plots and figures. 
 
