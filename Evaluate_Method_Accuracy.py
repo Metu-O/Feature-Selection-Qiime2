@@ -136,7 +136,7 @@ def evaluate_method_accuracy(outdir, database_name):
 def main():
     parser = argparse.ArgumentParser(description='For users that used a different reference database and want to specify path for plots')
     parser.add_argument('-', '--reference_database_name', nargs='?', type=pathlib.Path, default='gg_13_8_otus',
-             help='name of database containing ref sequences and taxa e.g gg_13_8_otus, greengenes, SILVA etc.)
+             help='name of database containing ref sequences and taxa e.g gg_13_8_otus, greengenes, SILVA etc.')
     parser.add_argument('-p', '--plots_path', nargs='?', type=pathlib.Path, default='plots',
              help='save plots in this directory \n[Default: %(default)s]')
     p = parser.parse_args()
