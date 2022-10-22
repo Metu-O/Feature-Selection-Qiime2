@@ -36,7 +36,7 @@ The sklearn stochastic gradient descent (SGD) classifier was used as a base esti
 
 4. Run codes 
 
-   using bash script or command lines (BASH SCRIPT MUST BE EDITED TO FIT USER'S PATH) 
+   Using bash script or command lines
    
 # Bash Script runs all codes 
 
