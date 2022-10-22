@@ -77,7 +77,7 @@ Run script below to use defaults
 ```
 python Naive_Bayes_Parameters.py 
 ```
-Run script below with to change defaults with user input 
+Run script below to change defaults with user input 
 ```
 python Naive_Bayes_Parameters.py \
    -n 'reference database name'\
@@ -101,7 +101,7 @@ Run script below to use defaults
 ```
 python SelectFromModel_MultinomialNB.py 
 ```
-Run script below with to change defaults with user input
+Run script below to change defaults with user input
 ```
 python SelectFromModel_MultinomialNB.py \
    -n 'reference database name'\
@@ -117,7 +117,7 @@ Run script below to use defaults
 ```
 python SelectFromModel_RandomForest.py
 ```
-Run script below with to change defaults with user input
+Run script below to change defaults with user input
 ```
 python SelectFromModel_RandomForest.py \
    -n 'reference database name e.g greengenes or SILVA'\
@@ -133,7 +133,7 @@ Run script below to use defaults
 ```
 python SelectFromModel_SDG.py
 ```
-Run script below with to change defaults with user input
+Run script below to change defaults with user input
 ```
 python SelectFromModel_SDG.py \
    -n 'reference database name'\
@@ -175,7 +175,7 @@ Run script below to use defaults
 ```
 python Evaluate_Method_Accuracy.py
 ```
-Run script below with to change defaults with user input
+Run script below to change defaults with user input
 ```
 python Evaluate_Method_Accuracy.py \
    -r 'name of database containing ref sequences and taxa e.g gg_13_8_otus, greengenes, SILVA etc.'
