@@ -54,18 +54,18 @@ Users may want to specify their own reference sequences and taxonomy.
 
 optional arguments:
 
-&emsp;-h, --help            show this help message and exit
+&emsp;&emsp;-h, --help            show this help message and exit
   
-  -n [REFERENCE_DATABASE_NAME], --reference_database_name [REFERENCE_DATABASE_NAME]
+&emsp;&emsp;-n [REFERENCE_DATABASE_NAME], --reference_database_name [REFERENCE_DATABASE_NAME]
                         name of database containing ref sequences and taxa
                         e.g. greengreens or SILVA [Default: gg_13_8_otus]
                         
-  -s [REFERENCE_SEQUENCES_PATH], --reference_sequences_path [REFERENCE_SEQUENCES_PATH]
+&emsp;&emsp;-s [REFERENCE_SEQUENCES_PATH], --reference_sequences_path [REFERENCE_SEQUENCES_PATH]
                         path to reference sequences. QIIME2 ARTIFACTS ONLY
                         (.qza files) [Default:
                         data/ref_dbs/gg_13_8_otus/99_otus_v4.qza]
                         
-  -t [REFERENCE_TAXONOMY_PATH], --reference_taxonomy_path [REFERENCE_TAXONOMY_PATH]
+&emsp;&emsp;-t [REFERENCE_TAXONOMY_PATH], --reference_taxonomy_path [REFERENCE_TAXONOMY_PATH]
                         path to reference taxonomy. QIIME2 ARTIFACTS ONLY
                         (.qza files) [Default: data/ref_dbs/gg_13_8_otus/99_ot
                         u_taxonomy_clean.tsv.qza]
