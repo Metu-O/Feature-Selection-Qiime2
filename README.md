@@ -36,7 +36,11 @@ The sklearn stochastic gradient descent (SGD) classifier was used as a base esti
 
 4. Run codes 
 
-   using command lines or bash script (BASH SCRIPT MUST BE EDITED TO FIT USER'S PATH) 
+   using bash script or command lines (BASH SCRIPT MUST BE EDITED TO FIT USER'S PATH) 
+   
+# Bash Script runs all codes 
+
+Note: The bash script was personalized to my personal environments and filepaths. Edit before use.
 
 # Command lines
 
@@ -189,10 +193,6 @@ python Evaluate_Method_Accuracy.py \
 ```
 
 Note: running these codes takes hours and may require a high computing processor. Do not wait around.
-
-# Bash Script runs all codes 
-
-Note: The bash script was personalized to my personal environments and filepaths. Edit before use.
 
 # Conclusion
 
