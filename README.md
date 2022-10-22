@@ -43,6 +43,10 @@ The sklearn stochastic gradient descent (SGD) classifier was used as a base esti
 Note: The bash script was personalized to my personal environments and filepaths. Edit before use.
 The easiest way to run the bash script is to change lines 11 & 20-26. To change other parts of the script, continue reading.  
 
+```
+sbatch script.sh
+```
+
 # Command lines
 
 1. Naive_Bayes_Parameters.py contains code that runs the naive bayes classifier with no feature selection using qiime2 q2-classifier recommended parameters. Naive_Bayes_Parameters.py allows user to run codes with defaults or user input. I strongly advise using defaults except you are adept with directories. Run "help" to see usage and defaults .
