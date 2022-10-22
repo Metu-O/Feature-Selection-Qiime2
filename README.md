@@ -183,7 +183,14 @@ python Evaluate_Method_Accuracy.py
 Run script below with to change defaults with user input
 ```
 python Evaluate_Method_Accuracy.py \
+   -r 'name of database containing ref sequences and taxa e.g gg_13_8_otus, greengenes, SILVA etc.'
    -p 'save plots in this directory 
+```
+Here is one example 
+```
+python Evaluate_Method_Accuracy.py \
+   -r 'greegenes' \
+   -p '/home/mosele/plots'
 ```
 
 Note: running these codes takes hours and may require a high computing processor. Do not wait around.
