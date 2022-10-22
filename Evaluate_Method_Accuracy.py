@@ -31,7 +31,7 @@ def evaluate_method_accuracy(database_name,outdir):
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    dataset_ids = ['mock-1', 'mock-2', 'mock-3', 'mock-4', 'mock-5','mock-6', 'mock-7', 'mock-8','mock-12','mock-13','mock-14', 'mock-15',       'mock-16','mock-18', 'mock-19', 'mock-20', 'mock-21', 'mock-22']
+    dataset_ids = ['mock-1', 'mock-2', 'mock-3', 'mock-4', 'mock-5','mock-6', 'mock-7', 'mock-8','mock-12','mock-13','mock-14', 'mock-15','mock-16','mock-18', 'mock-19', 'mock-20', 'mock-21', 'mock-22']
     method_ids = ['q2-NB', 'q2-SFM-RF', 'q2-SFM-SGD','q2-SFM-NB']
     ref_ids = [database_name]
     # Find mock community pre-computed tables, expected tables, and "query" tables
