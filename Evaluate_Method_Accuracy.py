@@ -50,7 +50,7 @@ def evaluate_method_accuracy(database_name,outdir):
                                 dataset_ids=dataset_ids,
                                 reference_ids=ref_ids,
                                 method_ids=method_ids,
-                                append=False,
+                                append=True,
                                 force=True, #force=True the first time 
                                 backup=False)
     #Compute and summarize precision, recall, and F-measure for mock communities
