@@ -54,7 +54,7 @@ Users may want to specify their own reference sequences and taxonomy.
 
 optional arguments:
 
-  -h, --help            show this help message and exit
+&emsp;-h, --help            show this help message and exit
   
   -n [REFERENCE_DATABASE_NAME], --reference_database_name [REFERENCE_DATABASE_NAME]
                         name of database containing ref sequences and taxa
