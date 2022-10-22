@@ -167,11 +167,15 @@ optional arguments:
 &emsp;&emsp;-r [REFERENCE_DATABASE_NAME], --reference_database_name [REFERENCE_DATABASE_NAME]
 
 &emsp;&emsp;&emsp;&emsp;name of database containing ref sequences and taxa e.g gg_13_8_otus, greengenes, SILVA etc.
+
+&emsp;&emsp;&emsp;&emsp;[Default: gg_13_8_otus]
+
 &emsp;&emsp;-p [PLOTS_PATH], --plots_path [PLOTS_PATH]
 
 &emsp;&emsp;&emsp;&emsp;save plots in this directory 
 
 &emsp;&emsp;&emsp;&emsp;[Default: plots]
+
 Run script below to use defaults
 ```
 python Evaluate_Method_Accuracy.py
