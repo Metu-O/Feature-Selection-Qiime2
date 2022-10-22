@@ -58,23 +58,21 @@ optional arguments:
   
 &emsp;&emsp;-n [REFERENCE_DATABASE_NAME], --reference_database_name [REFERENCE_DATABASE_NAME]
 
-&emsp;&emsp;name of database containing ref sequences and taxa
+&emsp;&emsp;&emsp;&emsp;name of database containing ref sequences and taxa e.g. greengreens or SILVA 
 
-&emsp;&emsp;e.g. greengreens or SILVA 
-
-&emsp;&emsp;[Default: gg_13_8_otus]
+&emsp;&emsp;&emsp;&emsp;[Default: gg_13_8_otus]
                         
 &emsp;&emsp;-s [REFERENCE_SEQUENCES_PATH], --reference_sequences_path [REFERENCE_SEQUENCES_PATH]
 
-&emsp;&emsp;path to reference sequences. QIIME2 ARTIFACTS ONLY(.qza files) 
+&emsp;&emsp;&emsp;&emsp;path to reference sequences. QIIME2 ARTIFACTS ONLY(.qza files) 
 
-&emsp;&emsp;[Default:data/ref_dbs/gg_13_8_otus/99_otus_v4.qza]
+&emsp;&emsp;&emsp;&emsp;[Default:data/ref_dbs/gg_13_8_otus/99_otus_v4.qza]
                         
 &emsp;&emsp;-t [REFERENCE_TAXONOMY_PATH], --reference_taxonomy_path [REFERENCE_TAXONOMY_PATH]
 
-&emsp;&emsp;path to reference taxonomy. QIIME2 ARTIFACTS ONLY(.qza files) 
+&emsp;&emsp;&emsp;&emsp;path to reference taxonomy. QIIME2 ARTIFACTS ONLY(.qza files) 
 
-&emsp;&emsp;[Default: data/ref_dbs/gg_13_8_otus/99_otu_taxonomy_clean.tsv.qza]
+&emsp;&emsp;&emsp;&emsp;[Default: data/ref_dbs/gg_13_8_otus/99_otu_taxonomy_clean.tsv.qza]
 
 Run script below to use defaults
 
