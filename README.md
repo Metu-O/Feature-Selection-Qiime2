@@ -44,8 +44,6 @@ The sklearn stochastic gradient descent (SGD) classifier was used as a base esti
 ```
 python Naive_Bayes_Parameters.py -h
 ```
-Example: 
-
 usage: Naive_Bayes_Parameters.py [-h] [-n [REFERENCE_DATABASE_NAME]]
                                  [-s [REFERENCE_SEQUENCES_PATH]]
                                  [-t [REFERENCE_TAXONOMY_PATH]]
@@ -151,9 +149,6 @@ Run "help" to see usage.
 ```
 python Evaluate_Method_Accuracy.py -h
 ```
-
-Example: 
-
 usage: Evaluate_Method_Accuracy.py [-h] [- [REFERENCE_DATABASE_NAME]]
                                    [-p [PLOTS_PATH]]
 
