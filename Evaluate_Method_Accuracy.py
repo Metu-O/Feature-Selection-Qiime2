@@ -23,7 +23,7 @@ from tax_credit.eval_framework import (evaluate_results,
                                        merge_expected_and_observed_tables,
                                        filter_df)
 
-def evaluate_method_accuracy(outdir, database_name):
+def evaluate_method_accuracy(database_name,outdir):
     expected_results_dir = join("data/precomputed-results/", "mock-community")
     mock_results_fp = join(expected_results_dir, 'mock_results.tsv')
     results_dirs = [expected_results_dir]
