@@ -46,9 +46,25 @@ python Naive_Bayes_Parameters.py -h
 ```
 Example: 
 
+usage: Naive_Bayes_Parameters.py [-h] [-n [REFERENCE_DATABASE_NAME]]
+                                 [-s [REFERENCE_SEQUENCES_PATH]]
+                                 [-t [REFERENCE_TAXONOMY_PATH]]
 
+Users may want to specify their own reference sequences and taxonomy.
 
-
+optional arguments:
+  -h, --help            show this help message and exit
+  -n [REFERENCE_DATABASE_NAME], --reference_database_name [REFERENCE_DATABASE_NAME]
+                        name of database containing ref sequences and taxa
+                        e.g. greengreens or SILVA [Default: gg_13_8_otus]
+  -s [REFERENCE_SEQUENCES_PATH], --reference_sequences_path [REFERENCE_SEQUENCES_PATH]
+                        path to reference sequences. QIIME2 ARTIFACTS ONLY
+                        (.qza files) [Default:
+                        data/ref_dbs/gg_13_8_otus/99_otus_v4.qza]
+  -t [REFERENCE_TAXONOMY_PATH], --reference_taxonomy_path [REFERENCE_TAXONOMY_PATH]
+                        path to reference taxonomy. QIIME2 ARTIFACTS ONLY
+                        (.qza files) [Default: data/ref_dbs/gg_13_8_otus/99_ot
+                        u_taxonomy_clean.tsv.qza]
 
 Run script below to use defaults
 
