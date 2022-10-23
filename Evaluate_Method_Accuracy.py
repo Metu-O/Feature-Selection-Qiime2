@@ -65,7 +65,7 @@ def evaluate_method_accuracy(database_name,outdir):
                                   group_by="Reference", color_by="Method",
                                   color_palette=color_palette)
     for k, v in point.items():
-        v.savefig(join(outdir, 'mock-{0}-lineplots.pdf'.format(k)),bbox_inches = 'tight')
+        v.savefig(join(outdir, '{0}-lineplot.pdf'.format(k)),bbox_inches = 'tight')
 
     # Heatmaps show the performance of individual method/parameter combinations at each taxonomic level, in each reference database
     heatmap_from_data_frame(mock_results, metric="Precision", rows=["Method", "Parameters"], cols=["Reference","Level"])
