@@ -129,7 +129,7 @@ def evaluate_method_accuracy(database_name,outdir):
                                                          color=None,
                                                          color_palette=color_palette)
     for k, v in boxes_4.items():
-        v.get_figure().savefig(join(outdir, 'level-4-fmeasure-{0}-boxplots.pdf'.format(k)))
+        v.get_figure().savefig(join(outdir, 'level-4-fmeasure-{0}-boxplots.pdf'.format(k)),bbox_inches = 'tight')
     
     boxes_5 = rank_optimized_method_performance_by_dataset(mock_results,
                                                          dataset="Reference",
@@ -147,7 +147,7 @@ def evaluate_method_accuracy(database_name,outdir):
                                                          color=None,
                                                          color_palette=color_palette)
     for k, v in boxes_5.items():
-        v.get_figure().savefig(join(outdir, 'level-5-fmeasure-{0}-boxplots.pdf'.format(k)))
+        v.get_figure().savefig(join(outdir, 'level-5-fmeasure-{0}-boxplots.pdf'.format(k)),bbox_inches = 'tight')
         
     boxes_6 = rank_optimized_method_performance_by_dataset(mock_results,
                                                          dataset="Reference",
@@ -165,7 +165,7 @@ def evaluate_method_accuracy(database_name,outdir):
                                                          color=None,
                                                          color_palette=color_palette)
     for k, v in boxes_6.items():
-        v.get_figure().savefig(join(outdir, 'level-6-fmeasure-{0}-boxplots.pdf'.format(k)))
+        v.get_figure().savefig(join(outdir, 'level-6-fmeasure-{0}-boxplots.pdf'.format(k)),bbox_inches = 'tight')
     
 def main():
     parser = argparse.ArgumentParser(description='For users that used a different reference database and want to specify path for plots')
