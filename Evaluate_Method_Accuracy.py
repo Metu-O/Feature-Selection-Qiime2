@@ -117,7 +117,7 @@ def evaluate_method_accuracy(database_name,outdir):
         #display(Markdown('## {0}'.format(metric)))
         boxes = rank_optimized_method_performance_by_dataset(mock_results,
                                                          dataset="Reference",
-                                                         metric=metric,
+                                                         metric="F-measure",
                                                          level_range=range(4,7),
                                                          display_fields=["Method",
                                                                          "Parameters",
