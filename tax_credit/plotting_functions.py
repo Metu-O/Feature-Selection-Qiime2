@@ -89,7 +89,7 @@ def pointplot_from_data_frame(df, x_axis, y_vars, group_by, color_by,
         grid[y_var] = sns.FacetGrid(df, col=group_by, hue=color_by,
                                     palette=color_palette)
         grid[y_var] = grid[y_var].map(
-            sns.pointplot, x_axis, y_var, markers="o", ms=4)
+            sns.pointplot, x_axis, y_var, markers="o")
     plt.show()
     return grid
 
