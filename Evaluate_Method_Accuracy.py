@@ -118,7 +118,7 @@ def evaluate_method_accuracy(database_name,outdir):
         boxes = rank_optimized_method_performance_by_dataset(mock_results,
                                                          dataset="Reference",
                                                          metric=metric,
-                                                         level_range=range(6,7),
+                                                         level_range=range(4,7),
                                                          display_fields=["Method",
                                                                          "Parameters",
                                                                          "Taxon Accuracy Rate",
