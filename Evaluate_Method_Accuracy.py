@@ -113,12 +113,10 @@ def evaluate_method_accuracy(database_name,outdir):
     # And, finally, which method performed best at each individual taxonomic level for each reference dataset (i.e., for across all fungal       and bacterial mock communities combined)? 
     # For this analysis, we rank the top-performing method/parameter combination for each method at family through species levels. Methods       are ranked by top F-measure, and the average value for each metric is shown (rather than count best as above). F-measure distributions       are plotted for each method, and compared using paired t-tests with FDR-corrected P-values. This cell does not need to be altered,           unless if you wish to change the metric used for sorting best methods and for plotting.
     
-    for metric in ["Taxon Accuracy Rate", "Taxon Detection Rate", "Precision", "Recall", "F-measure"]:
-        #display(Markdown('## {0}'.format(metric)))
-        boxes = rank_optimized_method_performance_by_dataset(mock_results,
+    boxes_4 = rank_optimized_method_performance_by_dataset(mock_results,
                                                          dataset="Reference",
                                                          metric="F-measure",
-                                                         level_range=range(4,7),
+                                                         level_range=range(4, 5),
                                                          display_fields=["Method",
                                                                          "Parameters",
                                                                          "Taxon Accuracy Rate",
@@ -130,9 +128,45 @@ def evaluate_method_accuracy(database_name,outdir):
                                                          parametric=True,
                                                          color=None,
                                                          color_palette=color_palette)
-        for k, v in boxes.items():
-            v.get_figure().savefig(join(outdir, 'mock-{0}-{1}-boxplots.pdf'.format(metric, k)), bbox_inches = 'tight')
-
+    for k, v in boxes_4.items():
+        v.get_figure().savefig(join(outdir, 'level-4-fmeasure-{0}-boxplots.pdf'.format(k)))
+    
+    boxes_5 = rank_optimized_method_performance_by_dataset(mock_results,
+                                                         dataset="Reference",
+                                                         metric="F-measure",
+                                                         level_range=range(5, 6),
+                                                         display_fields=["Method",
+                                                                         "Parameters",
+                                                                         "Taxon Accuracy Rate",
+                                                                         "Taxon Detection Rate",
+                                                                         "Precision",
+                                                                         "Recall",
+                                                                         "F-measure"],
+                                                         paired=True,
+                                                         parametric=True,
+                                                         color=None,
+                                                         color_palette=color_palette)
+    for k, v in boxes_5.items():
+        v.get_figure().savefig(join(outdir, 'level-5-fmeasure-{0}-boxplots.pdf'.format(k)))
+        
+    boxes_6 = rank_optimized_method_performance_by_dataset(mock_results,
+                                                         dataset="Reference",
+                                                         metric="F-measure",
+                                                         level_range=range(6, 7),
+                                                         display_fields=["Method",
+                                                                         "Parameters",
+                                                                         "Taxon Accuracy Rate",
+                                                                         "Taxon Detection Rate",
+                                                                         "Precision",
+                                                                         "Recall",
+                                                                         "F-measure"],
+                                                         paired=True,
+                                                         parametric=True,
+                                                         color=None,
+                                                         color_palette=color_palette)
+    for k, v in boxes_6.items():
+        v.get_figure().savefig(join(outdir, 'level-6-fmeasure-{0}-boxplots.pdf'.format(k)))
+    
 def main():
     parser = argparse.ArgumentParser(description='For users that used a different reference database and want to specify path for plots')
     parser.add_argument('-', '--reference_database_name', nargs='?', default='gg_13_8_otus',
