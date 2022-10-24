@@ -89,20 +89,20 @@ def evaluate_method_accuracy(database_name,outdir):
     # Method optimization
     # Which method/parameter configuration performed "best" for a given score? We can rank the top-performing configuration by dataset,           method, and taxonomic level. 
     # First, the top-performing method/configuration combination by dataset.
-    mock_results_6 = mock_results[mock_results['Level'] == 6]
+    mock_results_5 = mock_results[mock_results['Level'] == 5]
     #pd.set_option('display.max_colwidth', None)
-    for dataset in mock_results_6['Dataset'].unique():
+    for dataset in mock_results_5['Dataset'].unique():
         #display(Markdown('## {0}'.format(dataset)))
-        best = method_by_dataset_a1(mock_results_6, dataset)
+        best = method_by_dataset_a1(mock_results_5, dataset)
         #display(best)
         best.to_csv(join(outdir, '{0}-best_method.tsv'.format(dataset)),sep='\t')
     
     # Now we can determine which parameter configuration performed best for each method. Count best values in each column indicate how many 
     #samples a given method achieved within one mean absolute deviation of the best      
     #result (which is why they may sum to more than the total number of samples).
-    for method in mock_results_6['Method'].unique():
+    for method in mock_results_5['Method'].unique():
         top_params = parameter_comparisons(
-        mock_results_6, method, 
+        mock_results_5, method, 
         metrics=['Taxon Accuracy Rate', 'Taxon Detection Rate', 'Precision', 'Recall', 'F-measure'])
         #display(Markdown('## {0}'.format(method)))
         #display(top_params[:5])
