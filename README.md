@@ -201,7 +201,7 @@ Note: running these codes takes hours and may require a high computing processor
 
 # Conclusion
 
-Feature-Selection-Qiime2 performed better than regular qiime2 more than 70% of the time. To find out more about the metrics used for comparison, read my thesis (will be cited once published). 
+Feature-Selection-Qiime2 performed better than regular qiime2 78% of tests with less features and 50% of all tests. To find out more about the metrics used for comparison, read my thesis (will be cited once published). 
 
 # Citation
 
