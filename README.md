@@ -1,6 +1,6 @@
-# Feature-Selection-Qiime2
+# Feature-Selection-QIIME2
 
-This repository describes the methods used to test different sci-kit learn feature selection methods as part of Qiime2 q2-classifier.
+This repository describes the methods used to test different sci-kit learn feature selection methods as part of QIIME2 q2-classifier.
 
 # Embedded Feature Selection
 
@@ -49,7 +49,7 @@ sbatch script.sh
 
 # Command lines
 
-1. Naive_Bayes_Parameters.py contains code that runs the naive bayes classifier with no feature selection using qiime2 q2-classifier recommended parameters. Naive_Bayes_Parameters.py allows user to run codes with defaults or user input. I strongly advise using defaults except you are adept with directories. Run "help" to see usage and defaults .
+1. Naive_Bayes_Parameters.py contains code that runs the naive bayes classifier with no feature selection using QIIME2 q2-classifier recommended parameters. Naive_Bayes_Parameters.py allows user to run codes with defaults or user input. I strongly advise using defaults except you are adept with directories. Run "help" to see usage and defaults .
 ```
 python Naive_Bayes_Parameters.py -h
 ```
@@ -201,7 +201,7 @@ Note: running these codes takes hours and may require a high computing processor
 
 # Conclusion
 
-Feature-Selection-Qiime2 performed better than regular qiime2 78% of tests with less features and 50% of all tests. To find out more about the metrics used for comparison, read my thesis (will be cited once published). 
+Feature-Selection-QIIME2 performed better than regular qIIME2 78% of tests with less features and 50% of all tests. To find out more about the metrics used for comparison, read my thesis (will be cited once published). 
 
 # Citation
 
