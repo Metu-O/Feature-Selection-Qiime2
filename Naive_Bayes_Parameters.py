@@ -125,9 +125,18 @@ def main():
              help='Name of the reference database containing ref sequences and taxa. Default: %(default)s')
     parser.add_argument('-s', '--reference_sequences_path', nargs='?', type=pathlib.Path,default='data/ref_dbs/gg_13_8_otus/99_otus_v4.qza',
              help='Path to reference sequences. QIIME2 ARTIFACTS ONLY (.qza files) Default: %(default)s')
-    parser.add_argument('-t', '--reference_taxonomy_path', nargs='?', type=pathlib.Path, default='data/ref_dbs/gg_13_8_otus/99_otu_taxonomy_clean.tsv.qza',
+    parser.add_argument('-t', '--reference_taxonomy_path', nargs='?', type=pathlib.Path,
+                        default='data/ref_dbs/gg_13_8_otus/99_otu_taxonomy_clean.tsv.qza',
              help='Path to reference taxonomy. QIIME2 ARTIFACTS ONLY (.qza files) Default: %(default)s')
     args = parser.parse_args()
     reference_database_name = args.reference_database_name
     reference_sequences_path = args.reference_sequences_path
-    reference_taxonomy_path = args
+    reference_taxonomy_path = args.reference_taxonomy_path
+    print(".........debugging............")
+    print(reference_database_name)
+    print(reference_sequences_path)
+    print(reference_taxonomy_path)
+    main_wrapper_function(reference_database_name,reference_sequences_path,reference_taxonomy_path)
+    
+if __name__ == '__main__':
+        main()
