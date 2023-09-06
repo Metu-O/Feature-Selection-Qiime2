@@ -11,14 +11,22 @@ import json
 import tempfile
 from itertools import product
 import tensorflow as tf
+import pandas as pd
+import numpy as np
+import skbio
+from Bio import SeqIO
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Flatten
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 from qiime2.plugins import feature_classifier
 from qiime2 import Artifact
 from qiime2.plugin import Int, Str, Float, Bool, Choices, Range
 from joblib import Parallel, delayed
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import HashingVectorizer
+from sklearn.preprocessing import LabelEncoder
+from sklearn.base import BaseEstimator, ClassifierMixin
 from q2_feature_classifier.classifier import spec_from_pipeline
 from q2_types.feature_data import DNAIterator
 from q2_types.feature_table import FeatureTable, RelativeFrequency
@@ -33,25 +41,60 @@ from tax_credit.framework_functions import (
     gen_param_sweep, generate_per_method_biom_tables, move_results_to_repository)
 
 
-class MyCustomTensorFlowModel:
+class MyCustomTensorFlowModel(BaseEstimator, ClassifierMixin):
     def __init__(self, n_units=64):
         self.n_units = n_units
-        self.model = self.build_model()
-
-    def build_model(self):
+        self.model = None
+ 
+    def build_model(self, input_shape, num_classes):
         model = Sequential([
-            Dense(self.n_units, activation='relu', input_shape=(input_shape,)),  # Replace input_shape
-            Dense(num_classes, activation='softmax')  # Replace num_classes
+            Dense(self.n_units, activation='relu'),
+            Flatten(),
+            Dense(num_classes, activation='softmax') 
         ])
         model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
         return model
-
-    def train(self, x_train, y_train):
-        self.model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size)  # Define epochs and batch_size
-
+    
+    def fit(self, encoded_sequences, y_train, epochs=10, batch_size=32):
+        #x_train = np.array(encoded_sequences).reshape(len(encoded_sequences), -1)
+        x_train = np.stack(encoded_sequences)
+        num_samples, seq_len, one_hot_dim = x_train.shape
+        x_train_reshaped = x_train.reshape((num_samples, seq_len * one_hot_dim))
+        input_shape = (x_train.shape[1]*x_train.shape[2])
+   
+        # Convert y_train to integer labels if they're not
+        if isinstance(y_train[0], str):
+            self.le = LabelEncoder()
+            y_train = self.le.fit_transform(y_train)
+ 
+        num_classes = len(np.unique(y_train))
+   
+        # Convert integer labels to one-hot encoded labels
+        y_train_onehot = tf.keras.utils.to_categorical(y_train, num_classes=num_classes)
+        self.model = self.build_model(input_shape, num_classes)
+        
+        print('.............debugging.............')
+        print(x_train_reshaped.shape)
+        print(y_train_onehot.shape)
+        
+        
+        #exit()
+        self.model.fit(x_train_reshaped, y_train_onehot, epochs=epochs, batch_size=batch_size)
+        return self
+ 
     def predict(self, x):
-        return self.model.predict(x)
-
+        if self.model is None:
+            raise ValueError("The model has not been trained yet.")
+            
+        predictions = self.model.predict(x)
+        predicted_integers = np.argmax(predictions, axis=1)
+        confidence_scores = np.max(predictions, axis=1)
+       
+        # Convert integers back to original labels
+        predicted_labels = self.le.inverse_transform(predicted_integers)
+       
+        return predicted_labels, confidence_scores
+    
 def generate_pipeline_sweep(method_parameters_combinations, reference_dbs, sweep):
     for method, params in method_parameters_combinations.items():
         classifier_params, pipeline_params = split_params(params)
@@ -68,29 +111,113 @@ def split_params(params):
     return classifier_params, pipeline_params
 
 def train_classifier(ref_reads, ref_taxa, params, pipeline, verbose=False):
-    ref_reads = Artifact.load(ref_reads)
-    ref_taxa = Artifact.load(ref_taxa)
-
+    # Load artifacts
+    ref_reads_artifact = Artifact.load(ref_reads)
+    ref_taxa_artifact = Artifact.load(ref_taxa)
+    
+    # 1. Parse the FASTA file
+    export_dir = '/home/metu/Feature-Selection-Qiime2/data/exported/fasta/train'
+    ref_reads_artifact.export_data(export_dir)
+    fasta_filepath = os.path.join(export_dir, "dna-sequences.fasta")
+    
+    # Read sequences into a dictionary
+    seq_dict = {}
+    with open(fasta_filepath, "r") as handle:
+        for record in SeqIO.parse(handle, "fasta"):
+            seq_dict[record.id] = str(record.seq)
+ 
+    # Print first five sequences --- checking
+    for idx, (id_, seq) in enumerate(seq_dict.items()):
+        if idx >= 5:
+            break
+        print(id_, seq)
+         
+    print(list(seq_dict.keys())[0:5])
+    
+    # 2. Parse the taxonomy file
+    tax_df = ref_taxa_artifact.view(pd.DataFrame)
+    print(tax_df.head())
+    print(tax_df.columns)
+    tax_dict = tax_df['Taxon'].to_dict()
+    
+    print(list(tax_dict.keys())[0])
+    print(seq_dict['370251'])
+    overlapping_keys = [id_ for id_ in seq_dict if id_ in tax_dict]
+    print(f"Number of overlapping keys: {len(overlapping_keys)}")
+    
+    # 3. Match sequences with taxonomies
+    #matched_data = [(seq, tax_dict[id_]) for id_, seq in seq_dict.items() if id_ in tax_dict]
+    #sequences, taxonomies = zip(*matched_data)
+    
+    matched_data = []
+    for id_, seq in seq_dict.items():
+        if id_ in tax_dict:
+            taxonomy = tax_dict[id_]
+            matched_data.append((seq, taxonomy))
+    sequences, taxonomies = zip(*matched_data)
+    print("These is the first mapped data",matched_data[0])
+ 
+    # 4. Process the matched data
+    encoded_sequences = [one_hot_encode(seq) for seq in sequences]
+    print("These is the first encoded_sequence", encoded_sequences[0])
+    print("These is the length of the first encoded_sequence", len(encoded_sequences[0]))
+    # Check outer length
+    all_outer_lengths_correct = all(len(seq) == 250 for seq in encoded_sequences)
+ 
+    # Check inner lengths
+    all_inner_lengths_correct = all(all(len(base_encoding) == 4 for base_encoding in seq) for seq in encoded_sequences)
+ 
+    print(f"All outer lengths are 250: {all_outer_lengths_correct}")
+    print(f"All inner lengths are 4: {all_inner_lengths_correct}")
+    
+    # Find sequences not of length 250
+    for idx, seq in enumerate(encoded_sequences):
+        if len(seq) != 250:
+            print(f"Sequence at index {idx} has length {len(seq)}")
+ 
+    # Note: You might need to further process 'taxonomies' to fit your model's output.
+    # For simplicity, let's assume they are already integers representing class IDs.
+    y_train = np.array(taxonomies)
+ 
     # Create an instance of your custom TensorFlow model
     custom_tf_model = MyCustomTensorFlowModel()
-
-    # Train your TensorFlow model
-    custom_tf_model.train(ref_reads, ref_taxa, params)  # You need to implement this method in your model
-
+ 
+    # 5. Train the model
+    custom_tf_model.fit(encoded_sequences, y_train, **params)
+ 
     # Return the trained model
     return custom_tf_model
 
+
 # Modify the run_classifier function to use your custom TensorFlow model
 def run_classifier(classifier, output_dir, input_dir, params, verbose=False):
-    rep_seqs = Artifact.load(join(input_dir, 'rep_seqs.qza'))
-    if verbose:
-        print(output_dir)
-    # Replace this with predictions using your TensorFlow model
-    predictions = classifier.predict(rep_seqs)  # You need to implement this method in your model
-    # Save the predictions to the output directory
+    # Load the artifact
+    rep_seqs_artifact = Artifact.load(join(input_dir, 'rep_seqs.qza'))
+ 
+    # Convert the artifact to sequences (similar to what you did during training)
+    export_dir = '/home/metu/Feature-Selection-Qiime2/data/exported/fasta/test'
+    rep_seqs_artifact.export_data(export_dir)
+    fasta_filepath = os.path.join(export_dir, "dna-sequences.fasta")
+   
+    seq_list = []
+    with open(fasta_filepath, "r") as handle:
+        for record in SeqIO.parse(handle, "fasta"):
+            seq_list.append(str(record.seq))
+ 
+    # Encode the sequences
+    encoded_sequences = [one_hot_encode(seq) for seq in seq_list]
+   
+    # Reshape the sequences for your model
+    x_test = np.stack(encoded_sequences)
+    num_samples, seq_len, one_hot_dim = x_test.shape
+    x_test_reshaped = x_test.reshape((num_samples, seq_len * one_hot_dim))
+   
+    # Predict using your model
+    predictions, confidence_scores = classifier.predict(x_test_reshaped)
     makedirs(output_dir, exist_ok=True)
     output_file = join(output_dir, 'taxonomy.tsv')
-    dataframe = DataFrame(predictions)  # Modify this line to convert your predictions to a DataFrame
+    dataframe = DataFrame({'PredictedLabel':predictions,
+                           'Confidence':confidence_scores})  
     dataframe.to_csv(output_file, sep='\t', header=False)
 
 def train_and_run_classifier(method_parameters_combinations, reference_dbs, pipelines, sweep, verbose=False, n_jobs=4):
@@ -100,6 +227,27 @@ def train_and_run_classifier(method_parameters_combinations, reference_dbs, pipe
         Parallel(n_jobs=n_jobs)(delayed(run_classifier)(
             classifier, output_dir, input_dir, split_params(params)[0], verbose=verbose) for output_dir, input_dir, rs, rt, mt, params in subsweep)
         
+def build_pipeline(model_class, hash_params, classify_params):
+    
+    custom_tf_model = model_class()
+    
+    pipeline = Pipeline([
+        ('vectorizer', HashingVectorizer(**hash_params)),
+        ('classifier', custom_tf_model)
+    ])
+    return pipeline
+
+def one_hot_encode(sequence, desired_length=250):
+    mapping = {'A': [1, 0, 0, 0], 'C': [0, 1, 0, 0], 'G': [0, 0, 1, 0], 'T': [0, 0, 0, 1]}
+    encoded = [mapping.get(base, [0, 0, 0, 0]) for base in str(sequence)]  # use a default value for bases not in mapping
+   
+    # Pad the sequence if it's shorter than the desired length
+    while len(encoded) < desired_length:
+        encoded.append([0, 0, 0, 0])
+   
+    # Truncate the sequence if it's longer than the desired length
+    return encoded[:desired_length]
+                         
 def main_wrapper_function(database_name, reference_seqs, reference_tax):
     analysis_name = 'mock-community'
     data_dir = join('data', analysis_name)
