@@ -18,6 +18,7 @@ from Bio import SeqIO
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Flatten
+from tensorflow.keras.layers import Dropout
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from qiime2.plugins import feature_classifier
 from qiime2 import Artifact
@@ -42,21 +43,50 @@ from tax_credit.framework_functions import (
 
 
 class MyCustomTensorFlowModel(BaseEstimator, ClassifierMixin):
-    def __init__(self, n_units=64):
-        self.n_units = n_units
+    def __init__(self, **kwargs):
+        self.n_units = kwargs.get('units_per_layer',64)
+        self.num_layers = kwargs.get('num_layers',2)
+        self.batch_size = kwargs.get('batch_size',32)
+        self.activation = kwargs.get('activation_function','softmax')
+        self.dropout_rate = kwargs.get('dropout_rate',0.2)
+        self.learning_rate = kwargs.get('learning_rate',0.01)
         self.model = None
  
+    #def build_model(self, input_shape, num_classes):
+    #    model = Sequential([
+    #        Dense(self.n_units, activation='relu'),
+    #        Flatten(),
+    #        Dense(num_classes, self.activation) 
+    #    ])
+    #    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    #    return model
+    
     def build_model(self, input_shape, num_classes):
-        model = Sequential([
-            Dense(self.n_units, activation='relu'),
-            Flatten(),
-            Dense(num_classes, activation='softmax') 
-        ])
-        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+        model = tf.keras.Sequential()
+        for _ in range(self.num_layers):
+            model.add(tf.keras.layers.Dense(self.n_units, activation='relu'))
+            model.add(tf.keras.layers.Flatten())
+            model.add(tf.keras.layers.Dropout(self.dropout_rate))  # Dropout layer
+           
+        # Output layer (modify based on your task, e.g., binary classification, multi-class, regression)
+        model.add(tf.keras.layers.Dense(1, activation=self.activation)) # Example for binary classification
+       
+        # Compile the model (modify based on your task)
+        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.learning_rate), loss='binary_crossentropy', metrics=['accuracy'])
+       
         return model
     
-    def fit(self, encoded_sequences, y_train, epochs=10, batch_size=32):
-        #x_train = np.array(encoded_sequences).reshape(len(encoded_sequences), -1)
+    def fit(self, encoded_sequences, y_train, epochs=10):
+        
+        # Print the parameters
+        print("Model Parameters:")
+        print(f"Number of Units: {self.n_units}")
+        print(f"Number of Layers: {self.num_layers}")
+        print(f"Batch Size: {self.batch_size}")
+        print(f"Dropout Rate: {self.dropout_rate}")
+        print(f"Learning Rate: {self.learning_rate}")
+        print(f"activation_function for output layer: {self.activation}")
+        
         x_train = np.stack(encoded_sequences)
         num_samples, seq_len, one_hot_dim = x_train.shape
         x_train_reshaped = x_train.reshape((num_samples, seq_len * one_hot_dim))
@@ -79,7 +109,7 @@ class MyCustomTensorFlowModel(BaseEstimator, ClassifierMixin):
         
         
         #exit()
-        self.model.fit(x_train_reshaped, y_train_onehot, epochs=epochs, batch_size=batch_size)
+        self.model.fit(x_train_reshaped, y_train_onehot, epochs=epochs, batch_size=self.batch_size)
         return self
  
     def predict(self, x):
@@ -180,10 +210,10 @@ def train_classifier(ref_reads, ref_taxa, params, pipeline, verbose=False):
     y_train = np.array(taxonomies)
  
     # Create an instance of your custom TensorFlow model
-    custom_tf_model = MyCustomTensorFlowModel()
+    custom_tf_model = MyCustomTensorFlowModel(**params)
  
     # 5. Train the model
-    custom_tf_model.fit(encoded_sequences, y_train, **params)
+    custom_tf_model.fit(encoded_sequences, y_train)
  
     # Return the trained model
     return custom_tf_model
@@ -265,12 +295,17 @@ def main_wrapper_function(database_name, reference_seqs, reference_tax):
     ]
 
     method_parameters_combinations = {
-        'q2-TF': {
-            'confidence': [0.7],
-            # Add other hyperparameters relevant to your TensorFlow model here
-        }
+    'q2-TF': {
+        'learning_rate': [0.001, 0.01],
+        'batch_size': [32, 64, 128],
+        'num_layers': [2, 3, 4],
+        'units_per_layer': [64, 128, 256],
+        'activation_function': ['relu', 'softmax','sigmoid'],
+        'dropout_rate': [0.2, 0.5]
+        # Add other hyperparameters relevant to your TensorFlow model here
     }
-
+ }
+    
     hash_params = dict(
         analyzer='char_wb', ngram_range=[8, 8], alternate_sign=False
     )
