@@ -45,7 +45,7 @@ from tax_credit.framework_functions import (
 class MyCustomTensorFlowModel(BaseEstimator, ClassifierMixin):
     def __init__(self, **kwargs):
         self.n_units = kwargs.get('units_per_layer',64)
-        self.num_layers = kwargs.get('num_layers',2)
+        self.num_layers = kwargs.get('num_layers',3)
         self.batch_size = kwargs.get('batch_size',32)
         self.activation = kwargs.get('activation_function','softmax')
         self.dropout_rate = kwargs.get('dropout_rate',0.2)
@@ -65,14 +65,13 @@ class MyCustomTensorFlowModel(BaseEstimator, ClassifierMixin):
         model = tf.keras.Sequential()
         for _ in range(self.num_layers):
             model.add(tf.keras.layers.Dense(self.n_units, activation='relu'))
-            model.add(tf.keras.layers.Flatten())
             model.add(tf.keras.layers.Dropout(self.dropout_rate))  # Dropout layer
            
         # Output layer (modify based on your task, e.g., binary classification, multi-class, regression)
-        model.add(tf.keras.layers.Dense(1, activation=self.activation)) # Example for binary classification
+        model.add(tf.keras.layers.Dense(num_classes, activation=self.activation)) 
        
         # Compile the model (modify based on your task)
-        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.learning_rate), loss='binary_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.learning_rate), loss='categorical_crossentropy', metrics=['accuracy'])
        
         return model
     
@@ -298,10 +297,10 @@ def main_wrapper_function(database_name, reference_seqs, reference_tax):
     'q2-TF': {
         'learning_rate': [0.001, 0.01],
         'batch_size': [32, 64, 128],
-        'num_layers': [2, 3, 4],
+        'num_layers': [3, 4, 5],
         'units_per_layer': [64, 128, 256],
-        'activation_function': ['relu', 'softmax','sigmoid'],
-        'dropout_rate': [0.2, 0.5]
+        'activation_function': ['softmax','sigmoid'],
+        'dropout_rate': [0,0.2, 0.5]
         # Add other hyperparameters relevant to your TensorFlow model here
     }
  }
