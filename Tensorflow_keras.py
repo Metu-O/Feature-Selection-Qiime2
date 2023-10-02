@@ -1,4 +1,5 @@
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 import argparse
 import pathlib
 from os.path import join, exists, split, sep
@@ -14,6 +15,7 @@ import tensorflow as tf
 import pandas as pd
 import numpy as np
 import skbio
+import subprocess
 from Bio import SeqIO
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
@@ -28,6 +30,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import HashingVectorizer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.model_selection import train_test_split
 from q2_feature_classifier.classifier import spec_from_pipeline
 from q2_types.feature_data import DNAIterator
 from q2_types.feature_table import FeatureTable, RelativeFrequency
@@ -50,32 +53,48 @@ class MyCustomTensorFlowModel(BaseEstimator, ClassifierMixin):
         self.activation = kwargs.get('activation_function','softmax')
         self.dropout_rate = kwargs.get('dropout_rate',0.2)
         self.learning_rate = kwargs.get('learning_rate',0.01)
+        self.optimizer = kwargs.get('optimizer','adam')
+        self.initializer = kwargs.get('initializer','glorot_uniform')
+        self.regularizer = kwargs.get('regularizer',None)
+        self.regularization_strength = kwargs.get('regularization_strength',0)
+        self.use_batch_norm = kwargs.get('use_batch_norm',False)
+        
         self.model = None
- 
-    #def build_model(self, input_shape, num_classes):
-    #    model = Sequential([
-    #        Dense(self.n_units, activation='relu'),
-    #        Flatten(),
-    #        Dense(num_classes, self.activation) 
-    #    ])
-    #    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-    #    return model
     
     def build_model(self, input_shape, num_classes):
         model = tf.keras.Sequential()
+        
+        initializer_instance = tf.keras.initializers.get(self.initializer)
+        if self.regularizer:
+            regularizer_instance = tf.keras.regularizers.get({
+                'class_name':self.regularizer,
+                'config':{'l': self.regularization_strength}
+            })
+        
+            
+            
         for _ in range(self.num_layers):
-            model.add(tf.keras.layers.Dense(self.n_units, activation='relu'))
+            model.add(tf.keras.layers.Dense(self.n_units, 
+                                            activation='relu',
+                                            kernel_initializer=initializer_instance,
+                                            kernel_regularizer=regularizer_instance))
             model.add(tf.keras.layers.Dropout(self.dropout_rate))  # Dropout layer
            
         # Output layer (modify based on your task, e.g., binary classification, multi-class, regression)
-        model.add(tf.keras.layers.Dense(num_classes, activation=self.activation)) 
+        model.add(tf.keras.layers.Dense(num_classes, 
+                                        activation=self.activation,
+                                        kernel_initializer=initializer_instance,
+                                        kernel_regularizer=regularizer_instance)) 
+        
+        optimizer_instance = tf.keras.optimizers.get(self.optimizer)
+        optimizer_instance.learning_rate = self.learning_rate
        
         # Compile the model (modify based on your task)
-        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self.learning_rate), loss='categorical_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer=optimizer_instance, loss='categorical_crossentropy', metrics=['accuracy'])
        
         return model
     
-    def fit(self, encoded_sequences, y_train, epochs=10):
+    def fit(self, encoded_sequences, y_train, epochs=10, validation_split=0.2):
         
         # Print the parameters
         print("Model Parameters:")
@@ -84,7 +103,11 @@ class MyCustomTensorFlowModel(BaseEstimator, ClassifierMixin):
         print(f"Batch Size: {self.batch_size}")
         print(f"Dropout Rate: {self.dropout_rate}")
         print(f"Learning Rate: {self.learning_rate}")
-        print(f"activation_function for output layer: {self.activation}")
+        print(f"Optimizer: {self.optimizer}")
+        print(f"Initializer: {self.initializer}")
+        print(f"Regularizer: {self.regularizer}")
+        print(f"Regularization_strength: {self.regularization_strength}")
+        print(f"Use_batch_norm: {self.use_batch_norm}")
         
         x_train = np.stack(encoded_sequences)
         num_samples, seq_len, one_hot_dim = x_train.shape
@@ -106,9 +129,17 @@ class MyCustomTensorFlowModel(BaseEstimator, ClassifierMixin):
         print(x_train_reshaped.shape)
         print(y_train_onehot.shape)
         
+        x_train, x_val, y_train, y_val = train_test_split(x_train_reshaped, y_train_onehot, test_size=validation_split)
+        model = self.model.fit(x_train, y_train, epochs=epochs, batch_size=self.batch_size, validation_data=(x_val,y_val))
         
-        #exit()
-        self.model.fit(x_train_reshaped, y_train_onehot, epochs=epochs, batch_size=self.batch_size)
+        # Print the training and validation errors
+        training_error = model.history['loss'][-1]
+        validation_error = model.history['val_loss'][-1]
+        
+        print(f"Training Error: {training_error}")
+        print(f"Validation Error: {validation_error}")
+        
+        
         return self
  
     def predict(self, x):
@@ -149,6 +180,7 @@ def train_classifier(ref_reads, ref_taxa, params, pipeline, verbose=False):
     ref_reads_artifact.export_data(export_dir)
     fasta_filepath = os.path.join(export_dir, "dna-sequences.fasta")
     
+    
     # Read sequences into a dictionary
     seq_dict = {}
     with open(fasta_filepath, "r") as handle:
@@ -159,18 +191,18 @@ def train_classifier(ref_reads, ref_taxa, params, pipeline, verbose=False):
     for idx, (id_, seq) in enumerate(seq_dict.items()):
         if idx >= 5:
             break
-        print(id_, seq)
+        #print(id_, seq)
          
-    print(list(seq_dict.keys())[0:5])
+    #print(list(seq_dict.keys())[0:5])
     
     # 2. Parse the taxonomy file
     tax_df = ref_taxa_artifact.view(pd.DataFrame)
-    print(tax_df.head())
-    print(tax_df.columns)
+    #print(tax_df.head())
+    #print(tax_df.columns)
     tax_dict = tax_df['Taxon'].to_dict()
     
-    print(list(tax_dict.keys())[0])
-    print(seq_dict['370251'])
+    #print(list(tax_dict.keys())[0])
+    #print(seq_dict['370251'])
     overlapping_keys = [id_ for id_ in seq_dict if id_ in tax_dict]
     print(f"Number of overlapping keys: {len(overlapping_keys)}")
     
@@ -184,12 +216,12 @@ def train_classifier(ref_reads, ref_taxa, params, pipeline, verbose=False):
             taxonomy = tax_dict[id_]
             matched_data.append((seq, taxonomy))
     sequences, taxonomies = zip(*matched_data)
-    print("These is the first mapped data",matched_data[0])
+    #print("These is the first mapped data",matched_data[0])
  
     # 4. Process the matched data
     encoded_sequences = [one_hot_encode(seq) for seq in sequences]
-    print("These is the first encoded_sequence", encoded_sequences[0])
-    print("These is the length of the first encoded_sequence", len(encoded_sequences[0]))
+    #print("These is the first encoded_sequence", encoded_sequences[0])
+    #print("These is the length of the first encoded_sequence", len(encoded_sequences[0]))
     # Check outer length
     all_outer_lengths_correct = all(len(seq) == 250 for seq in encoded_sequences)
  
@@ -222,6 +254,16 @@ def train_classifier(ref_reads, ref_taxa, params, pipeline, verbose=False):
 def run_classifier(classifier, output_dir, input_dir, params, verbose=False):
     # Load the artifact
     rep_seqs_artifact = Artifact.load(join(input_dir, 'rep_seqs.qza'))
+    
+    #load feature table to store OTU ID
+    input_path = os.path.join(input_dir, 'feature_table.biom')
+    output_path = os.path.join(input_dir, 'feature_table.tsv')
+    # Run the QIIME 2 command
+    subprocess.run(["biom", "convert", "-i", input_path, "-o", output_path, "--to-tsv"])
+    
+    data = pd.read_csv(os.path.join(input_dir, 'feature_table.tsv'), sep='\t')
+    ids = data.index.to_list()
+    ids = ids[1:]
  
     # Convert the artifact to sequences (similar to what you did during training)
     export_dir = '/home/metu/Feature-Selection-Qiime2/data/exported/fasta/test'
@@ -245,9 +287,14 @@ def run_classifier(classifier, output_dir, input_dir, params, verbose=False):
     predictions, confidence_scores = classifier.predict(x_test_reshaped)
     makedirs(output_dir, exist_ok=True)
     output_file = join(output_dir, 'taxonomy.tsv')
-    dataframe = DataFrame({'PredictedLabel':predictions,
+    #print(".......debugging.......")
+    #print(len(ids))
+    #print(len(predictions))
+    #print(len(confidence_scores))
+    dataframe = DataFrame({'OTU ID': ids,
+                           'PredictedLabel':predictions,
                            'Confidence':confidence_scores})  
-    dataframe.to_csv(output_file, sep='\t', header=False)
+    dataframe.to_csv(output_file, sep='\t', header=False, index=False)
 
 def train_and_run_classifier(method_parameters_combinations, reference_dbs, pipelines, sweep, verbose=False, n_jobs=4):
     for method, db, pipeline_param, subsweep in generate_pipeline_sweep(method_parameters_combinations, reference_dbs, sweep):
@@ -289,21 +336,42 @@ def main_wrapper_function(database_name, reference_seqs, reference_tax):
     dataset_reference_combinations = [
         ('mock-1', database_name),
         ('mock-2', database_name),
-        ('mock-3', database_name),
-        # ... (rest of the combinations)
+        ('mock-3', database_name)
     ]
 
     method_parameters_combinations = {
     'q2-TF': {
-        'learning_rate': [0.001, 0.01],
-        'batch_size': [32, 64, 128],
-        'num_layers': [3, 4, 5],
-        'units_per_layer': [64, 128, 256],
-        'activation_function': ['softmax','sigmoid'],
-        'dropout_rate': [0,0.2, 0.5]
+        'learning_rate': [0.001],
+        'batch_size': [8],
+        'num_layers': [1],
+        'units_per_layer': [64],
+        'activation_function': ['softmax'],
+        'dropout_rate': [0],
+        'optimizer': ['sgd'],
+        'initializer': [None],
+        'regularizer': ['l1'],
+        'regularization_strength': [0.01],
+        'use_batch_norm': [False]
         # Add other hyperparameters relevant to your TensorFlow model here
     }
  }
+
+    #method_parameters_combinations = {
+    #'q2-TF': {
+     #   'learning_rate': [0.001, 0.005, 0.01],
+      #  'batch_size': [8, 16, 32, 64],
+      #  'num_layers': [1, 2, 3],
+      #  'units_per_layer': [32, 64, 128, 256],
+      #  'activation_function': ['softmax', 'relu', 'tanh', 'sigmoid'],
+      #  'dropout_rate': [0, 0.1, 0.2, 0.3, 0.4, 0.5],
+      #  'optimizer': ['adam', 'sgd', 'rmsprop'],
+      #  'initializer': ['glorot_uniform', 'he_normal', 'he_uniform'],
+      #  'regularizer': [None, 'l1', 'l2', 'l1_l2'],
+      #  'regularization_strength': [0, 0.01, 0.001, 0.0001],
+      #  'use_batch_norm': [True, False]
+        # Add any other hyperparameters you deem relevant
+  #  }
+#}
     
     hash_params = dict(
         analyzer='char_wb', ngram_range=[8, 8], alternate_sign=False
@@ -340,12 +408,12 @@ def main_wrapper_function(database_name, reference_seqs, reference_tax):
 
 def main():
     parser = argparse.ArgumentParser(description='Specify reference sequences and taxonomy.')
-    parser.add_argument('-n', '--reference_database_name', nargs='?', default='gg_13_8_otus',
+    parser.add_argument('-n', '--reference_database_name', nargs='?', default='silva',
              help='Name of the reference database containing ref sequences and taxa. Default: %(default)s')
-    parser.add_argument('-s', '--reference_sequences_path', nargs='?', type=pathlib.Path,default='data/ref_dbs/gg_13_8_otus/99_otus_v4.qza',
+    parser.add_argument('-s', '--reference_sequences_path', nargs='?', type=pathlib.Path,default='data/ref_dbs/silva/silva-138-99-seqs.qza',
              help='Path to reference sequences. QIIME2 ARTIFACTS ONLY (.qza files) Default: %(default)s')
     parser.add_argument('-t', '--reference_taxonomy_path', nargs='?', type=pathlib.Path,
-                        default='data/ref_dbs/gg_13_8_otus/99_otu_taxonomy_clean.tsv.qza',
+                        default='data/ref_dbs/silva/silva-138-99-tax.qza',
              help='Path to reference taxonomy. QIIME2 ARTIFACTS ONLY (.qza files) Default: %(default)s')
     args = parser.parse_args()
     reference_database_name = args.reference_database_name
