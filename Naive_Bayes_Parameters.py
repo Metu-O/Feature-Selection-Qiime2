@@ -87,10 +87,24 @@ def main_wrapper_function(database_name, reference_seqs, reference_tax):
     reference_dbs = {database_name : (reference_seqs, reference_tax)}
 
     dataset_reference_combinations = [
-        ('mock-1', database_name), 
-        ('mock-2', database_name), 
-        ('mock-3', database_name), 
-        # ... (rest of the combinations)
+        ('mock-1', database_name),
+        ('mock-2', database_name),
+        ('mock-3', database_name),
+        ('mock-4', database_name), 
+        ('mock-5', database_name), 
+        ('mock-6', database_name), 
+        ('mock-7', database_name), 
+        ('mock-8', database_name),
+        ('mock-12', database_name),
+        ('mock-13', database_name),
+        ('mock-14', database_name),
+        ('mock-15', database_name),
+        ('mock-16', database_name),
+        ('mock-18', database_name),
+        ('mock-19', database_name),
+        ('mock-20', database_name),
+        ('mock-21', database_name),
+        ('mock-22', database_name)
     ]
     
     method_parameters_combinations = {
