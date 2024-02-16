@@ -130,6 +130,6 @@ The Feature-Selection-Qiime2 repository has demonstrated significant improvement
 
 1. Bokulich, N.A., Kaehler, B.D., Rideout, J.R. et al. Optimizing taxonomic classification of marker-gene amplicon sequences with QIIME 2’s q2-feature-classifier plugin. Microbiome 6, 90 (2018). https://doi.org/10.1186/s40168-018-0470-z
 
-2. Osele, M. Machine Learning for Biological Data. ... (not yet available). 
+2. Osele, M. Machine Learning for Biological Data. University of Arkansas for Medical Sciences (2022). 
 
 3. Scikit-learn: Machine Learning in Python, Pedregosa et al., JMLR 12, pp. 2825-2830, 2011
